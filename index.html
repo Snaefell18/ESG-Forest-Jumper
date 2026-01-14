@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ESG Forest Jumper</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Permanent+Marker&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #2d3436;
+            font-family: 'Permanent Marker', cursive;
+            touch-action: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            height: 100%;
+            max-height: 800px;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F7FA 100%);
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        #score-board {
+            padding: 20px;
+            font-size: 32px;
+            color: #2d3436;
+            font-family: 'Bangers', cursive;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0px rgba(255,255,255,0.8);
+        }
+
+        /* Screens Styling */
+        #start-screen, #game-over-screen, #settings-screen, #quiz-screen, #highscore-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
+            text-align: center;
+            z-index: 10;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* --- START SCREEN MIT HINTERGRUNDBILD --- */
+        #start-screen {
+            background-image: url('https://i.ibb.co/LyZ9Nvn/unnamed-2.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.1); 
+            padding: 0;
+            display: flex; 
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: none;
+        }
+
+        #start-content {
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Platzhalter, damit die Buttons unten bleiben */
+        #start-content .btn-group {
+            margin-top: 280px; 
+        }
+
+        h1 {
+            color: #f1c40f; 
+            margin-bottom: 5px;
+            font-size: 64px;
+            font-family: 'Bangers', cursive;
+            letter-spacing: 3px;
+            text-shadow: 4px 4px 0px #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+            transform: rotate(-3deg);
+            line-height: 0.9;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #fff;
+            font-family: 'Permanent Marker', cursive;
+            font-size: 24px;
+            text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000;
+            margin-bottom: 60px; 
+            transform: rotate(-3deg);
+            background: #27ae60;
+            padding: 5px 15px;
+            box-shadow: 3px 3px 0 #000;
+        }
+
+        h2 {
+            color: #2d3436;
+            margin-bottom: 20px;
+            font-family: 'Bangers', cursive;
+            font-size: 42px;
+            letter-spacing: 2px;
+            font-weight: normal;
+        }
+
+        p {
+            color: #2d3436;
+            font-size: 20px;
+            margin-bottom: 25px;
+            max-width: 320px;
+            line-height: 1.4;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 280px;
+        }
+
+        button {
+            background-color: #fff;
+            color: #000;
+            border: 3px solid #000;
+            padding: 10px 0;
+            width: 100%;
+            font-size: 28px;
+            border-radius: 0;
+            cursor: pointer;
+            font-family: 'Bangers', cursive;
+            letter-spacing: 2px;
+            box-shadow: 6px 6px 0 #000;
+            transition: transform 0.1s, box-shadow 0.1s;
+            position: relative;
+            top: 0;
+        }
+
+        #start-btn {
+            background-color: #f1c40f; 
+        }
+
+        button:active {
+            top: 6px;
+            box-shadow: 0 0 0 #000;
+            transform: translate(6px, 6px);
+        }
+
+        button:hover {
+            filter: brightness(1.1);
+        }
+
+        button.secondary {
+            background-color: #fff;
+        }
+        
+        button.gemini-btn {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            border: 3px solid #000;
+            box-shadow: 5px 5px 0 #000;
+        }
+        button.gemini-btn:hover {
+             background: linear-gradient(135deg, #8072f5, #b4aeff);
+        }
+        
+        #revive-btn {
+            font-size: 26px;
+            padding: 12px 0;
+            font-weight: 900;
+            margin-bottom: 15px;
+            white-space: nowrap;
+        }
+
+        .diff-btn {
+            background-color: white;
+            color: #2d3436;
+            border: 3px solid #000;
+            box-shadow: 5px 5px 0 #000;
+            border-radius: 0;
+        }
+        .diff-btn.active {
+            background-color: #27ae60;
+            color: white;
+            border-color: #000;
+        }
+        .diff-btn.active:active {
+            box-shadow: 0 0 0 #000;
+        }
+        .diff-btn:active {
+            transform: translate(5px, 5px);
+            box-shadow: 0 0 0 #000;
+        }
+
+        /* Highscore Styles */
+        .hs-entry {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 10px;
+            font-size: 22px;
+            border-bottom: 2px dashed #ccc;
+            padding-bottom: 5px;
+        }
+        .hs-rank { font-weight: bold; color: #27ae60; margin-right: 10px; }
+        .hs-name { flex-grow: 1; text-align: left; }
+        .hs-score { font-family: 'Bangers', cursive; color: #f1c40f; text-shadow: 1px 1px 0 #000; }
+
+        /* Input Field */
+        #hs-input-container {
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 280px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 20px;
+            font-family: 'Permanent Marker', cursive;
+            border: 3px solid #000;
+            box-shadow: 4px 4px 0 #000;
+            margin-bottom: 10px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #27ae60;
+        }
+
+        /* Quiz Styles */
+        .quiz-question {
+            font-size: 24px;
+            color: #2d3436;
+            margin-bottom: 30px;
+            text-align: center;
+            width: 100%;
+            line-height: 1.4;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+        
+        .quiz-option {
+            background-color: white;
+            color: #2d3436;
+            border: 3px solid #000;
+            margin-bottom: 15px;
+            padding: 12px;
+            font-size: 20px;
+            border-radius: 0;
+            cursor: pointer;
+            transition: transform 0.1s;
+            width: 100%;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 5px 5px 0 #000;
+            font-family: 'Permanent Marker', cursive;
+        }
+        .quiz-option:hover {
+            background-color: #eceaff;
+            transform: translate(-2px, -2px);
+            box-shadow: 7px 7px 0 #000;
+        }
+
+        .quiz-option.correct {
+            background-color: #27ae60 !important;
+            color: white !important;
+        }
+        .quiz-option.wrong {
+            background-color: #c0392b !important;
+            color: white !important;
+        }
+
+        #quiz-splash {
+            font-family: 'Bangers', cursive;
+            font-size: 80px;
+            color: #f1c40f;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 4px 4px 0px #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            transform: scale(0);
+            z-index: 20;
+            text-align: center;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+            60% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .loading-spinner {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #6c5ce7;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .hidden { display: none !important; }
+
+        .bg-tree {
+            position: absolute;
+            bottom: 0;
+            width: 0; 
+            height: 0; 
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 150px solid rgba(39, 174, 96, 0.3);
+            z-index: 0;
+            transition: transform 1s ease-out; 
+            transform-origin: bottom center;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="tree-1" class="bg-tree" style="left: -20px; height: 200px; border-bottom-width: 250px; border-bottom-color: rgba(39, 174, 96, 0.4);"></div>
+    <div id="tree-2" class="bg-tree" style="right: -30px; height: 150px; border-bottom-width: 180px;"></div>
+    <div id="tree-3" class="bg-tree" style="left: 40%; bottom: -20px; transform: scale(0.6); opacity: 0.5;"></div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="ui-layer">
+        <div id="score-board">Höhe: 0</div>
+    </div>
+
+    <!-- START MENÜ -->
+    <div id="start-screen">
+        <div id="start-content">
+            <div class="btn-group">
+                <button id="start-btn">Spiel Starten</button>
+                <button id="highscore-btn" class="secondary">Bestenliste</button>
+                <button id="settings-btn" class="secondary">Einstellungen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EINSTELLUNGEN -->
+    <div id="settings-screen" class="hidden">
+        <h2>Schwierigkeit</h2>
+        <div class="btn-group">
+            <button class="diff-btn" onclick="setDifficulty('easy')">Praktikant (Leicht)</button>
+            <button class="diff-btn active" onclick="setDifficulty('medium')">Manager (Mittel)</button>
+            <button class="diff-btn" onclick="setDifficulty('hard')">CEO (Schwer)</button>
+            <div style="height: 10px;"></div>
+            <button id="back-btn" class="secondary">Zurück</button>
+        </div>
+        <p id="diff-desc" style="margin-top: 20px; font-size: 16px;">Ausgewogen. Perfekt für den Start.</p>
+    </div>
+
+    <!-- HIGHSCORE LISTE -->
+    <div id="highscore-screen" class="hidden">
+        <h2>Bestenliste</h2>
+        <div id="highscore-list" style="width: 100%; display:flex; flex-direction:column; align-items:center; margin-bottom: 20px;">
+            <p>Lade Daten...</p>
+        </div>
+        <div class="btn-group">
+            <button id="hs-back-btn" class="secondary">Zurück</button>
+        </div>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="quiz-screen" class="hidden">
+        <div id="quiz-splash" class="hidden">ESG-FRAGE!</div>
+        <div id="quiz-content" class="hidden" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+            <p id="quiz-question-text" class="quiz-question">Frage lädt...</p>
+            <div id="quiz-options-container" style="width: 100%; max-width: 320px;"></div>
+        </div>
+    </div>
+
+    <!-- GAME OVER -->
+    <div id="game-over-screen" class="hidden">
+        <h1>Oje!</h1>
+        <p id="game-over-reason">Der Waldboden war zu nah.</p>
+        <p>Erreichte Höhe: <span id="final-score">0</span></p>
+        
+        <!-- Eingabe für Highscore -->
+        <div id="hs-input-container" class="hidden">
+            <p style="margin-bottom: 5px; font-size: 16px;">Neuer Highscore!</p>
+            <input type="text" id="player-name" placeholder="Dein Name" maxlength="12">
+            <button id="submit-score-btn">Eintragen!</button>
+        </div>
+
+        <div class="btn-group" id="go-buttons">
+            <button id="revive-btn" class="gemini-btn hidden">✨ Zweite Chance ✨</button>
+            <button id="restart-btn">Nochmal versuchen</button>
+            <button id="menu-btn" class="secondary">Hauptmenü</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
+    import { getAuth, signInAnonymously, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+    import { getFirestore, collection, addDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+
+    // --- FIREBASE INIT ---
+    let firebaseConfig;
+    let appId;
+
+    if (typeof __firebase_config !== 'undefined') {
+        // Läuft hier in der Vorschau-Umgebung
+        firebaseConfig = JSON.parse(__firebase_config);
+        appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    } else {
+        // Läuft extern (z.B. Vercel) - MIT DEINEN DATEN
+        firebaseConfig = {
+          apiKey: "AIzaSyATPQ_m0D1c7r49TYtDtQJ31vCJU1pI5dc",
+          authDomain: "web-app-352fd.firebaseapp.com",
+          projectId: "web-app-352fd",
+          storageBucket: "web-app-352fd.firebasestorage.app",
+          messagingSenderId: "63742911757",
+          appId: "1:63742911757:web:db12869d4111927f113c44",
+          measurementId: "G-SGVDDDZSLK"
+        };
+        appId = 'esg-jumper-production'; 
+    }
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    let user = null;
+    let highscores = [
+        { name: "Greta", score: 500 },
+        { name: "EcoWarrior", score: 350 },
+        { name: "TreeHugger", score: 200 },
+        { name: "BioBob", score: 100 },
+        { name: "SolarSam", score: 50 }
+    ];
+
+    // Auth & Init
+    const initAuth = async () => {
+        try {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                const userCredential = await signInWithCustomToken(auth, __initial_auth_token);
+                user = userCredential.user;
+            } else {
+                const userCredential = await signInAnonymously(auth);
+                user = userCredential.user;
+            }
+            initHighscores();
+        } catch (error) {
+            console.error("Auth Error", error);
+        }
+    };
+    initAuth();
+
+    function initHighscores() {
+        if (!user) return;
+        // Listen to public highscores
+        const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'highscores');
+        onSnapshot(colRef, (snapshot) => {
+            const fetched = [];
+            snapshot.forEach(doc => {
+                fetched.push(doc.data());
+            });
+            // Merge or replace defaults if we have data
+            if (fetched.length > 0) {
+                // Sort Descending
+                fetched.sort((a, b) => b.score - a.score);
+                highscores = fetched;
+            }
+            // Update UI if screen is open
+            if (!document.getElementById('highscore-screen').classList.contains('hidden')) {
+                updateHighscoreDisplay();
+            }
+        }, (err) => console.error("Firestore Error:", err));
+    }
+
+    function saveHighscore(name, scoreValue) {
+        if (!user) return;
+        const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'highscores');
+        addDoc(colRef, {
+            name: name,
+            score: scoreValue,
+            timestamp: Date.now()
+        }).catch(err => console.error("Save Error:", err));
+    }
+
+    // --- HIGHSCORE UI ---
+    function updateHighscoreDisplay() {
+        const list = document.getElementById('highscore-list');
+        list.innerHTML = '';
+        // Highscores are already sorted by onSnapshot or default
+        // We ensure sort again just in case mixed data
+        const displayScores = [...highscores].sort((a, b) => b.score - a.score).slice(0, 5);
+
+        if (displayScores.length === 0) {
+            list.innerHTML = '<p>Noch keine Einträge.</p>';
+            return;
+        }
+
+        displayScores.forEach((entry, index) => {
+            const row = document.createElement('div');
+            row.className = 'hs-entry';
+            row.innerHTML = `
+                <span class="hs-rank">#${index + 1}</span>
+                <span class="hs-name">${entry.name}</span>
+                <span class="hs-score">${entry.score}</span>
+            `;
+            list.appendChild(row);
+        });
+    }
+
+    function checkHighscore(finalScore) {
+        // Prüfen ob Score in Top 5 gehört
+        // Sort current highscores to be sure
+        const sorted = [...highscores].sort((a, b) => b.score - a.score);
+        if (sorted.length < 5 || finalScore > sorted[sorted.length - 1].score) {
+            return true;
+        }
+        return false;
+    }
+
+    // --- GEMINI API ---
+    const apiKey = ""; 
+
+    async function fetchESGQuestion() {
+        const prompt = `Generiere eine interessante Multiple-Choice-Frage (Schwierigkeitsgrad: Allgemeinwissen) zu den Themen Umwelt, Klimaschutz, Soziale Verantwortung oder Unternehmensführung (ESG). 
+        Gib das Ergebnis als valides JSON zurück: { "question": "...", "options": ["A", "B", "C", "D"], "correctIndex": 0 }
+        Sprache: Deutsch. Kurz und knackig.`;
+
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
+            });
+            if (!response.ok) throw new Error('API Request failed');
+            const data = await response.json();
+            return JSON.parse(data.candidates[0].content.parts[0].text);
+        } catch (error) {
+            console.error("Gemini Error:", error);
+            return { question: "Wofür steht das 'G' in ESG?", options: ["Green", "Governance", "Global", "Growth"], correctIndex: 1 };
+        }
+    }
+
+    // --- Konfiguration ---
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreElement = document.getElementById('score-board');
+    const startScreen = document.getElementById('start-screen');
+    const settingsScreen = document.getElementById('settings-screen');
+    const highscoreScreen = document.getElementById('highscore-screen');
+    const gameOverScreen = document.getElementById('game-over-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const finalScoreElement = document.getElementById('final-score');
+    const gameOverReasonElement = document.getElementById('game-over-reason');
+    const diffDescElement = document.getElementById('diff-desc');
+    const diffButtons = document.querySelectorAll('.diff-btn');
+    const reviveBtn = document.getElementById('revive-btn');
+    const quizSplash = document.getElementById('quiz-splash');
+    const quizContent = document.getElementById('quiz-content');
+    const quizQuestionText = document.getElementById('quiz-question-text');
+    const quizOptionsContainer = document.getElementById('quiz-options-container');
+    const hsInputContainer = document.getElementById('hs-input-container');
+    const playerNameInput = document.getElementById('player-name');
+    const tree1 = document.getElementById('tree-1');
+    const tree2 = document.getElementById('tree-2');
+    const tree3 = document.getElementById('tree-3');
+
+    document.getElementById('start-btn').addEventListener('click', startGame);
+    document.getElementById('settings-btn').addEventListener('click', showSettings);
+    document.getElementById('highscore-btn').addEventListener('click', showHighscores);
+    document.getElementById('back-btn').addEventListener('click', showMenu);
+    document.getElementById('hs-back-btn').addEventListener('click', showMenu);
+    document.getElementById('restart-btn').addEventListener('click', startGame);
+    document.getElementById('menu-btn').addEventListener('click', () => {
+        gameOverScreen.classList.add('hidden');
+        showMenu();
+    });
+    
+    // Highscore Submit
+    document.getElementById('submit-score-btn').addEventListener('click', () => {
+        const name = playerNameInput.value.trim() || "Anonym";
+        const finalScore = Math.floor(score / 10);
+        
+        // Save to Cloud
+        saveHighscore(name, finalScore);
+        
+        // Optimistic Update locally so user sees it instantly before cloud sync
+        // (Not strictly necessary if sync is fast, but feels better)
+        // Actually, we'll wait for sync to keep it simple or just hide input
+        hsInputContainer.classList.add('hidden');
+        
+        // Show success msg or jump to list? Let's show the list to prove it
+        showHighscores(); 
+        gameOverScreen.classList.add('hidden');
+    });
+
+    reviveBtn.addEventListener('click', startReviveQuiz);
+
+    // --- Settings & Menu State ---
+    const difficultySettings = {
+        easy: { name: 'Praktikant', desc: 'Viele Plattformen, entspannt.', platformCount: 12, minGap: 60, maxGap: 100, fragileChance: 0.1, oilDemonChance: 0.05, smogPhantomChance: 0 },
+        medium: { name: 'Manager', desc: 'Ausgewogen. Standard.', platformCount: 10, minGap: 80, maxGap: 130, fragileChance: 0.25, oilDemonChance: 0.10, smogPhantomChance: 0 },
+        hard: { name: 'CEO', desc: 'Nur für Profis!', platformCount: 8, minGap: 100, maxGap: 160, fragileChance: 0.4, oilDemonChance: 0.15, smogPhantomChance: 0.08 }
+    };
+    let currentDifficulty = 'medium';
+    let hasRevived = false;
+
+    function setDifficulty(level) {
+        currentDifficulty = level;
+        diffButtons.forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.innerText.includes(difficultySettings[level].name)) btn.classList.add('active');
+        });
+        diffDescElement.innerText = difficultySettings[level].desc;
+    }
+
+    function showSettings() {
+        startScreen.classList.add('hidden');
+        settingsScreen.classList.remove('hidden');
+    }
+
+    function showHighscores() {
+        startScreen.classList.add('hidden');
+        updateHighscoreDisplay();
+        highscoreScreen.classList.remove('hidden');
+    }
+
+    function showMenu() {
+        state = 'MENU';
+        settingsScreen.classList.add('hidden');
+        highscoreScreen.classList.add('hidden');
+        gameOverScreen.classList.add('hidden');
+        startScreen.classList.remove('hidden');
+    }
+
+    // --- Quiz Logic ---
+    async function startReviveQuiz() {
+        gameOverScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+        quizContent.classList.add('hidden');
+        quizSplash.classList.remove('hidden');
+        quizSplash.innerText = "ESG-FRAGE!"; 
+        
+        const quizDataPromise = fetchESGQuestion();
+        await new Promise(r => setTimeout(r, 1500)); 
+        const quizData = await quizDataPromise;
+        quizSplash.classList.add('hidden');
+        quizContent.classList.remove('hidden');
+        quizQuestionText.innerText = quizData.question;
+        quizOptionsContainer.innerHTML = '';
+        quizData.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'quiz-option';
+            btn.innerText = opt;
+            btn.onclick = () => handleQuizAnswer(index, quizData.correctIndex, btn);
+            quizOptionsContainer.appendChild(btn);
+        });
+    }
+
+    function handleQuizAnswer(selectedIndex, correctIndex, btnElement) {
+        const allBtns = quizOptionsContainer.querySelectorAll('button');
+        allBtns.forEach(b => b.onclick = null);
+        if (selectedIndex === correctIndex) {
+            btnElement.classList.add('correct');
+            setTimeout(startReviveCountdown, 800); 
+        } else {
+            btnElement.classList.add('wrong');
+            allBtns[correctIndex].classList.add('correct');
+            setTimeout(() => {
+                quizScreen.classList.add('hidden');
+                gameOverScreen.classList.remove('hidden');
+                reviveBtn.classList.add('hidden');
+            }, 1500);
+        }
+    }
+
+    function startReviveCountdown() {
+        quizContent.classList.add('hidden');
+        quizSplash.classList.remove('hidden');
+        
+        const triggerAnim = (text) => {
+            quizSplash.innerText = text;
+            quizSplash.style.animation = 'none';
+            quizSplash.offsetHeight; 
+            quizSplash.style.animation = 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+        };
+
+        triggerAnim("RICHTIG!");
+
+        setTimeout(() => triggerAnim("3"), 1500);
+        setTimeout(() => triggerAnim("2"), 2500);
+        setTimeout(() => triggerAnim("1"), 3500);
+        setTimeout(performRevive, 4500);
+    }
+
+    function performRevive() {
+        quizScreen.classList.add('hidden');
+        state = 'PLAYING';
+        hasRevived = true;
+        player.vy = -15; 
+        player.y = height - 100;
+        platforms.push({ x: player.x, y: height - 50, type: 'normal', broken: false, design: 0, mossOffset: 10 });
+    }
+
+    // --- Game Variables ---
+    let state = 'MENU'; 
+    let score = 0;
+    let width, height;
+    let time = 0; 
+    const gravity = 0.25; 
+    let cameraY = 0;
+    let keys = { ArrowLeft: false, ArrowRight: false };
+    let touchX = null;
+
+    let player = { x: 0, y: 0, width: 40, height: 50, vx: 0, vy: 0, speed: 6, jumpForce: -9, isHyper: false, hyperTimer: 0 };
+    let platforms = [], enemies = [], particles = [], powerups = [], windLines = [], birds = [];
+    const platformWidth = 70;
+    const platformHeight = 15;
+
+    function resize() {
+        const container = document.getElementById('game-container');
+        width = container.clientWidth;
+        height = container.clientHeight;
+        canvas.width = width;
+        canvas.height = height;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    window.addEventListener('keydown', (e) => { if(e.code === 'ArrowLeft' || e.code === 'ArrowRight') keys[e.code] = true; });
+    window.addEventListener('keyup', (e) => { if(e.code === 'ArrowLeft' || e.code === 'ArrowRight') keys[e.code] = false; });
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); touchX = e.touches[0].clientX - canvas.getBoundingClientRect().left; }, {passive: false});
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); touchX = e.touches[0].clientX - canvas.getBoundingClientRect().left; }, {passive: false});
+    canvas.addEventListener('touchend', (e) => { touchX = null; });
+
+    // --- Logic ---
+    function recyclePlatform(p, highestY, settings) {
+        let gap = settings.minGap + Math.random() * (settings.maxGap - settings.minGap);
+        p.y = highestY - gap;
+        p.x = Math.random() * (width - platformWidth);
+        p.type = Math.random() < settings.fragileChance ? 'fragile' : 'normal';
+        p.broken = false;
+        p.design = Math.floor(Math.random() * 3); 
+        p.mossOffset = Math.random() * 40;
+        
+        spawnItemCheck(p.y);
+    }
+
+    function resetGame() {
+        score = 0; cameraY = 0; time = 0; hasRevived = false;
+        player.x = width / 2 - player.width / 2; player.y = height - 150; player.vx = 0; player.vy = player.jumpForce; player.isHyper = false; player.hyperTimer = 0;
+        platforms = []; enemies = []; particles = []; powerups = []; windLines = []; birds = [];
+        updateEnvironment(0);
+        const settings = difficultySettings[currentDifficulty];
+        let currentY = height - 80;
+        // Startplattform
+        platforms.push({ x: width / 2 - platformWidth / 2, y: currentY, type: 'normal', broken: false, design: 0, mossOffset: 15 });
+        for (let i = 1; i < settings.platformCount; i++) {
+            let gap = settings.minGap + Math.random() * (settings.maxGap - settings.minGap);
+            currentY -= gap;
+            let type = Math.random() < settings.fragileChance ? 'fragile' : 'normal';
+            platforms.push({ 
+                x: Math.random() * (width - platformWidth), 
+                y: currentY, 
+                type: type, 
+                broken: false,
+                design: Math.floor(Math.random() * 3), // Zufälliges Design (0, 1, 2)
+                mossOffset: Math.random() * 40 // Zufällige Moos-Position
+            });
+        }
+    }
+
+    function createDebris(x, y, w, h, type = 'wood') {
+        let color1 = '#CD853F'; let color2 = '#DEB887';
+        if (type === 'oil') { color1 = '#1a1a1a'; color2 = '#333333'; }
+        if (type === 'smog') { color1 = '#636e72'; color2 = '#b2bec3'; }
+
+        if (type === 'wood') {
+             particles.push({ x: x, y: y, w: w/2, h: h, vx: -2 - Math.random() * 2, vy: -4 - Math.random() * 2, rot: 0, rotSpeed: -0.1, life: 1.0, type: 'chunk', color: color1 });
+             particles.push({ x: x + w/2, y: y, w: w/2, h: h, vx: 2 + Math.random() * 2, vy: -4 - Math.random() * 2, rot: 0, rotSpeed: 0.1, life: 1.0, type: 'chunk', color: color1 });
+        }
+        
+        const count = (type === 'oil' || type === 'smog') ? 20 : 8;
+        for(let i=0; i<count; i++) {
+            let p = {
+                x: x + Math.random()*w, y: y + Math.random()*h,
+                w: 4 + Math.random()*4, h: 4 + Math.random()*4,
+                vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 1) * 10,
+                rot: Math.random() * Math.PI, rotSpeed: (Math.random() - 0.5) * 0.4,
+                life: 0.6 + Math.random() * 0.4, type: 'splinter', 
+                color: Math.random() > 0.5 ? color1 : color2
+            };
+            particles.push(p);
+        }
+    }
+
+    function spawnItemCheck(y) {
+        const settings = difficultySettings[currentDifficulty];
+        if (score > 300 && settings.smogPhantomChance > 0 && Math.random() < settings.smogPhantomChance) {
+            enemies.push({ type: 'smog', x: Math.random() * (width - 60), y: y - 80 - Math.random() * 50, w: 60, h: 45, vx: (Math.random() < 0.5 ? 2.5 : -2.5), offsetY: Math.random() * Math.PI * 2 });
+            return; 
+        }
+        if (score > 150 && Math.random() < settings.oilDemonChance) { 
+            enemies.push({ type: 'oil', x: Math.random() * (width - 50), y: y - 50 - Math.random() * 50, w: 50, h: 40, vx: Math.random() < 0.5 ? 1 : -1, offsetY: Math.random() * Math.PI * 2 });
+            return;
+        }
+        if (Math.random() < 0.04) {
+            powerups.push({ x: Math.random() * (width - 30), y: y - 50 - Math.random() * 50, w: 30, h: 30, offsetY: Math.random() * Math.PI * 2 });
+        }
+    }
+    
+    function updateEnvironment(currentScore) {
+        const growth = Math.min(currentScore / 3000, 0.8); 
+        tree1.style.transform = `scale(${1 + growth})`;
+        tree2.style.transform = `scale(${1 + growth})`;
+        tree3.style.transform = `scale(${0.6 + growth})`;
+        if (Math.random() < 0.01) { 
+            birds.push({ x: Math.random() < 0.5 ? -20 : width + 20, y: Math.random() * (height / 2), vx: (Math.random() * 1 + 0.5) * (Math.random() < 0.5 ? 1 : -1), size: Math.random() * 5 + 5, flapSpeed: Math.random() * 0.2 + 0.1, flapOffset: Math.random() * Math.PI });
+            birds[birds.length-1].vx = birds[birds.length-1].x < 0 ? Math.abs(birds[birds.length-1].vx) : -Math.abs(birds[birds.length-1].vx);
+        }
+    }
+
+    function update() {
+        if (state !== 'PLAYING') return;
+        time++;
+        if (time % 10 === 0) updateEnvironment(score);
+        else if (Math.random() < 0.005) updateEnvironment(score);
+
+        for (let i = birds.length - 1; i >= 0; i--) {
+            let b = birds[i]; b.x += b.vx; if (b.x < -50 || b.x > width + 50) birds.splice(i, 1);
+        }
+
+        if (player.isHyper) {
+            player.hyperTimer--; player.vy = -20; 
+            if (time % 2 === 0) windLines.push({ x: Math.random() * width, y: -50, h: 50 + Math.random() * 100, speed: 25 + Math.random() * 10 });
+            if (player.hyperTimer <= 0) { player.isHyper = false; player.vy = -10; }
+        }
+
+        if (keys.ArrowLeft) player.vx = -player.speed;
+        else if (keys.ArrowRight) player.vx = player.speed;
+        else if (touchX !== null) { if (touchX < width / 2) player.vx = -player.speed; else player.vx = player.speed; } 
+        else player.vx = 0;
+
+        player.x += player.vx;
+        let prevY = player.y;
+        if (!player.isHyper) { player.y += player.vy; player.vy += gravity; if (player.vy > 12) player.vy = 12; } else { player.y += player.vy; }
+        if (player.x + player.width < 0) player.x = width; else if (player.x > width) player.x = -player.width;
+
+        if (player.y < height / 2) {
+            let diff = (height / 2) - player.y; player.y = height / 2; cameraY += diff; score += Math.floor(diff);
+            platforms.forEach(p => p.y += diff); enemies.forEach(e => e.y += diff); particles.forEach(p => p.y += diff); powerups.forEach(p => p.y += diff); birds.forEach(b => b.y += diff * 0.3);
+        }
+
+        for (let i = windLines.length - 1; i >= 0; i--) { let w = windLines[i]; w.y += w.speed; if (w.y > height) windLines.splice(i, 1); }
+        for (let i = particles.length - 1; i >= 0; i--) { let p = particles[i]; p.x += p.vx; p.y += p.vy; p.vy += 0.4; p.rot += p.rotSpeed; p.life -= 0.02; if (p.life <= 0 || p.y > height) particles.splice(i, 1); }
+        for (let i = powerups.length - 1; i >= 0; i--) {
+            let p = powerups[i]; p.y += Math.sin((time / 15) + p.offsetY) * 0.5;
+            if (player.x < p.x + p.w && player.x + player.width > p.x && player.y < p.y + p.h && player.y + player.height > p.y) { powerups.splice(i, 1); player.isHyper = true; player.hyperTimer = 300; continue; }
+            if (p.y > height) powerups.splice(i, 1);
+        }
+
+        for (let i = enemies.length - 1; i >= 0; i--) {
+            let e = enemies[i]; e.x += e.vx; if (e.x <= 0 || e.x + e.w >= width) e.vx *= -1; e.y += Math.sin((time / 20) + e.offsetY) * 0.5;
+            if (e.y > height) { enemies.splice(i, 1); continue; }
+            const hitboxPadding = 5;
+            if (player.x < e.x + e.w - hitboxPadding && player.x + player.width > e.x + hitboxPadding && player.y < e.y + e.h && player.y + player.height > e.y) {
+                if (player.isHyper) { createDebris(e.x, e.y, e.w, e.h, e.type); enemies.splice(i, 1); score += 500; continue; }
+                const feetPrev = prevY + player.height; const enemyCenterY = e.y + e.h * 0.6;
+                if (player.vy > 0 && feetPrev < enemyCenterY) { player.vy = player.jumpForce * 1.2; createDebris(e.x, e.y, e.w, e.h, e.type); enemies.splice(i, 1); score += 500; } 
+                else { let reason = "Vom Öl-Dämon erwischt!"; if (e.type === 'smog') reason = "Vom Smog-Phantom erstickt!"; gameOver(reason); }
+            }
+        }
+
+        const settings = difficultySettings[currentDifficulty];
+        let highestPlatformY = height;
+        platforms.forEach(p => { if (!p.broken && p.y < highestPlatformY) highestPlatformY = p.y; });
+        platforms.forEach((p) => {
+            if (p.broken || player.isHyper) { if (p.y > height) { recyclePlatform(p, highestPlatformY, settings); highestPlatformY = p.y; } return; }
+            const hitboxPadding = 8; const horizontalOverlap = (player.x + player.width - hitboxPadding > p.x) && (player.x + hitboxPadding < p.x + platformWidth); const feetY_prev = prevY + player.height;
+            if (player.vy > 0 && horizontalOverlap) {
+                if (feetY_prev <= p.y + 10 && player.y + player.height >= p.y) {
+                    player.vy = player.jumpForce;
+                    if (p.type === 'fragile') { createDebris(p.x, p.y, platformWidth, platformHeight, 'wood'); p.broken = true; }
+                }
+            }
+            if (p.y > height) { recyclePlatform(p, highestPlatformY, settings); highestPlatformY = p.y; }
+        });
+
+        if (player.y > height) gameOver('Der Waldboden war zu nah.');
+        scoreElement.innerText = `Höhe: ${Math.floor(score / 10)}`;
+    }
+
+    // --- Draw ---
+    function drawScientist(x, y, w, h) {
+        if (player.isHyper) { ctx.save(); ctx.shadowColor = '#00ffcc'; ctx.shadowBlur = 20; ctx.globalAlpha = 0.8; x += (Math.random() - 0.5) * 4; }
+        ctx.fillStyle = 'rgba(0,0,0,0.1)'; ctx.beginPath(); ctx.ellipse(x + w/2, y + h + 5, w/3, 5, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(x + 5, y + 20, w - 10, h - 20); ctx.fillStyle = '#eee'; ctx.fillRect(x + w/2 - 2, y + 25, 4, h - 30);
+        ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(x + w/2, y + 15, 12, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(x + w/2, y + 12, 14, Math.PI, Math.PI * 2); ctx.arc(x + w/2 - 12, y + 15, 5, 0, Math.PI * 2); ctx.arc(x + w/2 + 12, y + 15, 5, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x + w/2 - 4, y + 16, 3, 0, Math.PI * 2); ctx.arc(x + w/2 + 4, y + 16, 3, 0, Math.PI * 2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x + w/2 - 1, y + 16); ctx.lineTo(x + w/2 + 1, y + 16); ctx.stroke();
+        ctx.fillStyle = '#333'; ctx.fillRect(x + 10, y + h - 10, 8, 10); ctx.fillRect(x + w - 18, y + h - 10, 8, 10);
+        ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(x + 4, y + 35, 4, 0, Math.PI * 2); ctx.arc(x + w - 4, y + 35, 4, 0, Math.PI * 2); ctx.fill();
+        if (player.isHyper) ctx.restore();
+    }
+
+    function drawOilDemon(x, y, w, h) {
+        const wobble = Math.sin(time / 10) * 3;
+        ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.beginPath(); ctx.ellipse(x + w/2, y + h + 8, w/3, 4, 0, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.moveTo(x + 10, y + h - 5); ctx.bezierCurveTo(x - 5, y + h/2, x - 5, y, x + w/2, y + wobble); ctx.bezierCurveTo(x + w + 5, y, x + w + 5, y + h/2, x + w - 10, y + h - 5); ctx.fill();
+        ctx.shadowColor = '#e74c3c'; ctx.shadowBlur = 10; ctx.fillStyle = '#ff0000'; ctx.beginPath(); ctx.ellipse(x + 15, y + 20 + wobble, 6, 8, -0.2, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(x + w - 15, y + 20 + wobble, 6, 8, 0.2, 0, Math.PI*2); ctx.fill();
+        ctx.shadowBlur = 0; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x + 16, y + 20 + wobble, 2, 0, Math.PI*2); ctx.arc(x + w - 14, y + 20 + wobble, 2, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.beginPath(); let my = y + 35 + wobble; ctx.moveTo(x + 10, my); ctx.lineTo(x + 15, my + 5); ctx.lineTo(x + 20, my); ctx.lineTo(x + 25, my + 5); ctx.lineTo(x + 30, my); ctx.lineTo(x + 35, my + 5); ctx.lineTo(x + 40, my); ctx.stroke();
+    }
+
+    function drawSmogPhantom(x, y, w, h) {
+        const wobble = Math.sin(time / 5) * 5; 
+        ctx.fillStyle = 'rgba(99, 110, 114, 0.9)'; ctx.beginPath(); ctx.arc(x + 20, y + 20 + wobble, 20, 0, Math.PI * 2); ctx.arc(x + 40, y + 15 + wobble, 25, 0, Math.PI * 2); ctx.arc(x + 50, y + 30 + wobble, 18, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#f1c40f'; ctx.shadowColor = '#f1c40f'; ctx.shadowBlur = 10; ctx.beginPath(); ctx.moveTo(x + 20, y + 25 + wobble); ctx.lineTo(x + 25, y + 15 + wobble); ctx.lineTo(x + 30, y + 25 + wobble); ctx.moveTo(x + 40, y + 25 + wobble); ctx.lineTo(x + 45, y + 15 + wobble); ctx.lineTo(x + 50, y + 25 + wobble); ctx.fill(); ctx.shadowBlur = 0;
+    }
+
+    function drawSyringe(x, y, w, h) {
+        ctx.save(); ctx.translate(x + w/2, y + h/2); ctx.rotate(-Math.PI / 4);
+        ctx.fillStyle = '#999'; ctx.fillRect(-2, -h/2, 4, 10);
+        ctx.fillStyle = 'rgba(200, 240, 255, 0.8)'; ctx.strokeStyle = '#999'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.rect(-8, -h/2 + 10, 16, 25); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#00ff00'; ctx.fillRect(-6, -h/2 + 15, 12, 15);
+        ctx.fillStyle = '#666'; ctx.fillRect(-6, -h/2 + 35, 12, 10); ctx.fillRect(-10, -h/2 + 45, 20, 4);
+        ctx.restore();
+    }
+
+    function drawWind() {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)'; ctx.lineWidth = 2; windLines.forEach(w => { ctx.beginPath(); ctx.moveTo(w.x, w.y); ctx.lineTo(w.x, w.y - w.h); ctx.stroke(); });
+    }
+
+    function drawBirds() {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)'; ctx.lineWidth = 2;
+        birds.forEach(b => { let flap = Math.sin(time * b.flapSpeed + b.flapOffset) * 5; ctx.beginPath(); ctx.moveTo(b.x - b.size, b.y - flap); ctx.lineTo(b.x, b.y); ctx.lineTo(b.x + b.size, b.y - flap); ctx.stroke(); });
+    }
+
+    function drawPlatform(p) {
+        if (p.broken) return; 
+        
+        let colorMain, colorTop;
+        
+        if (p.type === 'fragile') { 
+            colorMain = '#CD853F'; colorTop = '#DEB887'; 
+        } else {
+            // Variationen
+            if (p.design === 1) { // Dunkel (Mahagoni)
+                colorMain = '#5D4037'; colorTop = '#8D6E63';
+            } else { // Standard
+                colorMain = '#8B4513'; colorTop = '#A0522D';
+            }
+        }
+
+        ctx.fillStyle = colorMain; ctx.beginPath(); ctx.roundRect(p.x, p.y, platformWidth, platformHeight, 5); ctx.fill();
+        ctx.fillStyle = colorTop; ctx.beginPath(); ctx.roundRect(p.x, p.y, platformWidth, platformHeight/2, 5); ctx.fill();
+        
+        if (p.type === 'normal') { 
+            // Design 2: Maserung
+            if (p.design === 2) {
+                ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(p.x + 5, p.y + 5); ctx.lineTo(p.x + 25, p.y + 5);
+                ctx.moveTo(p.x + 35, p.y + 10); ctx.lineTo(p.x + 65, p.y + 10);
+                ctx.stroke();
+            }
+
+            // Moos an variabler Position
+            let mx = p.x + (p.mossOffset || 10);
+            ctx.fillStyle = '#2ecc71'; ctx.beginPath(); 
+            ctx.arc(mx, p.y, 5, 0, Math.PI * 2); ctx.arc(mx + 20, p.y - 2, 7, 0, Math.PI * 2); ctx.fill(); 
+        } 
+        else if (p.type === 'fragile') { 
+            ctx.strokeStyle = '#5c3a21'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(p.x + 20, p.y + 2); ctx.lineTo(p.x + 35, p.y + 10); ctx.lineTo(p.x + 50, p.y + 2); ctx.stroke(); 
+        }
+    }
+
+    function drawParticles() {
+        particles.forEach(p => { ctx.save(); ctx.translate(p.x + p.w/2, p.y + p.h/2); ctx.rotate(p.rot); ctx.fillStyle = p.color; ctx.globalAlpha = p.life; ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); ctx.restore(); });
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+        
+        if (state === 'MENU') {
+            // Nothing to draw on canvas for menu as it is now HTML based
+        } else {
+            drawBirds();
+            platforms.forEach(drawPlatform);
+            enemies.forEach(e => { if (e.type === 'oil') drawOilDemon(e.x, e.y, e.w, e.h); else if (e.type === 'smog') drawSmogPhantom(e.x, e.y, e.w, e.h); });
+            powerups.forEach(p => drawSyringe(p.x, p.y, p.w, p.h));
+            drawParticles(); 
+            if (player.isHyper) drawWind();
+            drawScientist(player.x, player.y, player.width, player.height);
+        }
+    }
+
+    function gameLoop() {
+        if (state === 'PLAYING') {
+            update();
+        } 
+        draw();
+        requestAnimationFrame(gameLoop);
+    }
+
+    function startGame() {
+        state = 'PLAYING';
+        startScreen.classList.add('hidden');
+        gameOverScreen.classList.add('hidden');
+        resetGame();
+    }
+
+    function gameOver(reason) {
+        state = 'GAMEOVER';
+        finalScoreElement.innerText = Math.floor(score / 10);
+        gameOverReasonElement.innerText = reason || "Der Waldboden war zu nah.";
+        gameOverScreen.classList.remove('hidden');
+        if (!hasRevived) reviveBtn.classList.remove('hidden'); else reviveBtn.classList.add('hidden');
+        
+        // Highscore Check (using cloud data logic)
+        if(checkHighscore(Math.floor(score / 10))) {
+            hsInputContainer.classList.remove('hidden');
+        } else {
+            hsInputContainer.classList.add('hidden');
+        }
+    }
+
+    // Initial render
+    showMenu(); // Start with Menu
+    requestAnimationFrame(gameLoop); // Start Loop immediately
+
+</script>
+</body>
+</html>
