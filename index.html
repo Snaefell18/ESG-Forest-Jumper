@@ -383,9 +383,9 @@
     <div id="settings-screen" class="hidden">
         <h2>Schwierigkeit</h2>
         <div class="btn-group">
-            <button class="diff-btn" onclick="setDifficulty('easy')">Praktikant (Leicht)</button>
-            <button class="diff-btn active" onclick="setDifficulty('medium')">Manager (Mittel)</button>
-            <button class="diff-btn" onclick="setDifficulty('hard')">CEO (Schwer)</button>
+            <button class="diff-btn" data-level="easy">Praktikant (Leicht)</button>
+            <button class="diff-btn active" data-level="medium">Manager (Mittel)</button>
+            <button class="diff-btn" data-level="hard">CEO (Schwer)</button>
             <div style="height: 10px;"></div>
             <button id="back-btn" class="secondary">Zurück</button>
         </div>
@@ -439,11 +439,6 @@
     import { getFirestore, collection, addDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
     // --- FIREBASE INIT ---
-    // ANLEITUNG FÜR FIREBASE (Wichtig für Vercel):
-    // 1. In Firebase Console "Authentication" -> "Sign-in method" -> "Anonymous" aktivieren.
-    // 2. In Firebase Console "Firestore Database" -> "Rules" auf public oder test mode stellen (für den Anfang):
-    //    allow read, write: if true; (nur zum Testen! Später einschränken)
-    
     let firebaseConfig;
     let appId;
 
@@ -497,20 +492,16 @@
 
     function initHighscores() {
         if (!user) return;
-        // Listen to public highscores
         const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'highscores');
         onSnapshot(colRef, (snapshot) => {
             const fetched = [];
             snapshot.forEach(doc => {
                 fetched.push(doc.data());
             });
-            // Merge or replace defaults if we have data
             if (fetched.length > 0) {
-                // Sort Descending
                 fetched.sort((a, b) => b.score - a.score);
                 highscores = fetched;
             }
-            // Update UI if screen is open
             if (!document.getElementById('highscore-screen').classList.contains('hidden')) {
                 updateHighscoreDisplay();
             }
@@ -531,8 +522,6 @@
     function updateHighscoreDisplay() {
         const list = document.getElementById('highscore-list');
         list.innerHTML = '';
-        // Highscores are already sorted by onSnapshot or default
-        // We ensure sort again just in case mixed data
         const displayScores = [...highscores].sort((a, b) => b.score - a.score).slice(0, 5);
 
         if (displayScores.length === 0) {
@@ -553,8 +542,6 @@
     }
 
     function checkHighscore(finalScore) {
-        // Prüfen ob Score in Top 5 gehört
-        // Sort current highscores to be sure
         const sorted = [...highscores].sort((a, b) => b.score - a.score);
         if (sorted.length < 5 || finalScore > sorted[sorted.length - 1].score) {
             return true;
@@ -620,6 +607,14 @@
     document.getElementById('menu-btn').addEventListener('click', () => {
         gameOverScreen.classList.add('hidden');
         showMenu();
+    });
+    
+    // DIFFICULTY SELECTION FIX
+    diffButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const level = btn.getAttribute('data-level');
+            if (level) setDifficulty(level);
+        });
     });
     
     // Highscore Submit
