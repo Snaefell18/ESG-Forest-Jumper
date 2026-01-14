@@ -439,6 +439,11 @@
     import { getFirestore, collection, addDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
     // --- FIREBASE INIT ---
+    // ANLEITUNG FÜR FIREBASE (Wichtig für Vercel):
+    // 1. In Firebase Console "Authentication" -> "Sign-in method" -> "Anonymous" aktivieren.
+    // 2. In Firebase Console "Firestore Database" -> "Rules" auf public oder test mode stellen (für den Anfang):
+    //    allow read, write: if true; (nur zum Testen! Später einschränken)
+    
     let firebaseConfig;
     let appId;
 
@@ -622,15 +627,16 @@
         const name = playerNameInput.value.trim() || "Anonym";
         const finalScore = Math.floor(score / 10);
         
+        // Optimistic Update (Sofort anzeigen)
+        const newEntry = { name: name, score: finalScore };
+        highscores.push(newEntry);
+        highscores.sort((a, b) => b.score - a.score);
+        
         // Save to Cloud
         saveHighscore(name, finalScore);
         
-        // Optimistic Update locally so user sees it instantly before cloud sync
-        // (Not strictly necessary if sync is fast, but feels better)
-        // Actually, we'll wait for sync to keep it simple or just hide input
         hsInputContainer.classList.add('hidden');
         
-        // Show success msg or jump to list? Let's show the list to prove it
         showHighscores(); 
         gameOverScreen.classList.add('hidden');
     });
